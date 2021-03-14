@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from atomic import AtomicLong
+from atomos.atomic import AtomicLong
 
 
 class _HeartbeatHistory:
@@ -19,10 +19,10 @@ class _HeartbeatHistory:
         self.squared_interval_sum = squared_interval_sum
 
     def mean(self) -> float:
-        return self.interval_sum.value / self.max_sample_size
+        return self.interval_sum.get() / self.max_sample_size
 
     def variance(self) -> float:
-        return (self.squared_interval_sum.value / len(self.intervals)) - (self.mean() * self.mean())
+        return (self.squared_interval_sum.get() / len(self.intervals)) - (self.mean() * self.mean())
 
     def std_dev(self) -> float:
         return math.sqrt(self.variance())
@@ -31,17 +31,17 @@ class _HeartbeatHistory:
         return _HeartbeatHistory(
             max_sample_size=self.max_sample_size,
             intervals=self.intervals[1:],
-            interval_sum=self.interval_sum.value - self.intervals[0],
-            squared_interval_sum=self.squared_interval_sum.value - (self.intervals[0] * self.intervals[0])
+            interval_sum=self.interval_sum.get() - self.intervals[0],
+            squared_interval_sum=self.squared_interval_sum.get() - (self.intervals[0] * self.intervals[0])
         )
 
     def __add__(self, interval: AtomicLong) -> _HeartbeatHistory:
         if len(self.intervals) < self.max_sample_size:
             return _HeartbeatHistory(
                 max_sample_size=self.max_sample_size,
-                intervals=self.intervals + interval.value,
-                interval_sum=self.interval_sum.value + interval,
-                squared_interval_sum=self.squared_interval_sum.value + (interval.value * interval.value))
+                intervals=self.intervals + interval.get(),
+                interval_sum=self.interval_sum.get() + interval,
+                squared_interval_sum=self.squared_interval_sum.get() + (interval.get() * interval.get()))
 
         else:
             return self.drop_oldest() + interval
