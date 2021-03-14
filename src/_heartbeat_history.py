@@ -7,15 +7,15 @@ from atomos.atomic import AtomicLong
 
 class _HeartbeatHistory:
 
-    def __init__(self, max_sample_size: int, intervals=None, interval_sum: AtomicLong = AtomicLong(0),
-                 squared_interval_sum: AtomicLong = AtomicLong(0)):
+    def __init__(self, max_sample_size: int, intervals=None, interval_sum: float = 0,
+                 squared_interval_sum: float = 0):
 
         if intervals is None:
             intervals = list()
         self.max_sample_size = max_sample_size
         self.intervals = intervals
-        self.interval_sum = interval_sum
-        self.squared_interval_sum = squared_interval_sum
+        self.interval_sum = AtomicLong(interval_sum)
+        self.squared_interval_sum = AtomicLong(squared_interval_sum)
 
     def mean(self) -> float:
         return self.interval_sum.get() / self.max_sample_size
@@ -30,8 +30,8 @@ class _HeartbeatHistory:
         return _HeartbeatHistory(
             max_sample_size=self.max_sample_size,
             intervals=self.intervals[1:],
-            interval_sum=AtomicLong(self.interval_sum.get() - self.intervals[0]),
-            squared_interval_sum=AtomicLong(self.squared_interval_sum.get() - (self.intervals[0] * self.intervals[0]))
+            interval_sum=self.interval_sum.get() - self.intervals[0],
+            squared_interval_sum=self.squared_interval_sum.get() - (self.intervals[0] * self.intervals[0])
         )
 
     def __add__(self, interval: int) -> _HeartbeatHistory:
@@ -39,7 +39,7 @@ class _HeartbeatHistory:
             return _HeartbeatHistory(
                 max_sample_size=self.max_sample_size,
                 intervals=self.intervals + [interval],
-                interval_sum=AtomicLong(self.interval_sum.get() + interval),
-                squared_interval_sum=AtomicLong(self.squared_interval_sum.get() + (interval * interval)))
+                interval_sum=self.interval_sum.get() + interval,
+                squared_interval_sum=self.squared_interval_sum.get() + (interval * interval))
         else:
             return self.drop_oldest() + interval
