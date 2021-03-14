@@ -1,1 +1,1 @@
-# phi-accural-failure-detector
+# phi-accrual-failure-detector
