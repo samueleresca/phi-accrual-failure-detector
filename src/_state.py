@@ -3,6 +3,6 @@ from typing import Optional
 
 
 class _State:
-    def __init__(self, history: _HeartbeatHistory, timestamp: Optional[int] = None):
+    def __init__(self, history: _HeartbeatHistory, timestamp: Optional[float] = None):
         self.history = history
         self.timestamp = timestamp

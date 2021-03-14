@@ -6,8 +6,10 @@ from atomos.atomic import AtomicLong
 
 
 class _HeartbeatHistory:
+
     def __init__(self, max_sample_size: int, intervals=None, interval_sum: AtomicLong = AtomicLong(0),
                  squared_interval_sum: AtomicLong = AtomicLong(0)):
+
         if intervals is None:
             intervals = list()
         self.max_sample_size = max_sample_size
@@ -39,6 +41,5 @@ class _HeartbeatHistory:
                 intervals=self.intervals + [interval],
                 interval_sum=AtomicLong(self.interval_sum.get() + interval),
                 squared_interval_sum=AtomicLong(self.squared_interval_sum.get() + (interval * interval)))
-
         else:
             return self.drop_oldest() + interval
