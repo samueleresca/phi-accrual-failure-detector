@@ -33,7 +33,7 @@ class PhiAccrualFailureDetector:
         self.min_std_deviation_millis = min_std_deviation_millis
         self.acceptable_heartbeat_pause_millis = acceptable_heartbeat_pause_millis
         self.first_heartbeat_estimate_millis = first_heartbeat_estimate_millis
-        self.state = AtomicReference(_State(history = self._first_heartbeat(), timestamp = None))
+        self.state = AtomicReference(_State(history=self._first_heartbeat(), timestamp=None))
 
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
         return max(std_deviation, self.min_std_deviation_millis)
@@ -41,8 +41,30 @@ class PhiAccrualFailureDetector:
     def _acceptable_heartbeat_pause_millis(self) -> float:
         return self.acceptable_heartbeat_pause_millis.real
 
+    def _is_available(self, timestamp: float) -> bool:
+        return self._phi(timestamp) < self.threshold
+
     def phi(self) -> float:
         return self._phi(clock())
+
+    def heartbeat(self) -> None:
+        timestamp = clock()
+        old_state = self.state.get()
+        new_history = None
+
+        if old_state.timestamp is None:
+            new_history = self._first_heartbeat()
+        else:
+            latest_timestamp = old_state.timestamp
+            interval = timestamp - latest_timestamp
+
+            if self._is_available(timestamp):
+                new_history = old_state.history + interval
+
+        new_state = _State(history=new_history, timestamp=timestamp)
+
+        if not self.state.compare_and_set(old_state, new_state):
+            self.heartbeat()
 
     def _phi(self, timestamp: float) -> float:
         old_state = self.state
