@@ -91,10 +91,10 @@ class TestPhiAccrualFailureDetector:
         failure_detector.heartbeat()
         failure_detector.heartbeat()
 
-        assert failure_detector.is_available() == True
+        assert failure_detector.is_available() is True
 
     def test_failure_detector_with_death_node_if_heartbeat_missed(self):
-        def mock_time():
+        def mock_time() -> iter:
             yield 0
             yield 1000
             yield 100
@@ -123,9 +123,49 @@ class TestPhiAccrualFailureDetector:
         failure_detector.heartbeat()
         failure_detector.heartbeat()
 
-        assert failure_detector.is_available() == True
+        assert failure_detector.is_available() is True
         failure_detector._get_time()
-        assert failure_detector.is_available() == False
+        assert failure_detector.is_available() is False
+
+    def test_failure_after_configured_missing_accetable_heartbeat(self):
+        def mock_time():
+            yield 0
+            yield 1000
+            yield 1000
+            yield 1000
+            yield 1000
+            yield 1000
+            yield 500
+            yield 500
+            yield 5000
+
+        mock_time_obj = mock_time()
+
+        failure_detector = PhiAccrualFailureDetector(
+            threshold=3,
+            max_sample_size=1000,
+            min_std_deviation_millis=10,
+            acceptable_heartbeat_pause_millis=0,
+            first_heartbeat_estimate_millis=1000
+        )
+
+        def get_time_mocked():
+            current_time = next(mock_time_obj)
+            print(current_time)
+            return current_time
+
+        failure_detector._get_time = get_time_mocked
+
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+
+        assert failure_detector.is_available() is True
+        failure_detector._get_time()
+        assert failure_detector.is_available() is False
 
     @mark.skip
     def test_failure_detector_heartbeat_multi_thread(self):

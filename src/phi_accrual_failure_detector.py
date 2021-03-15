@@ -7,15 +7,6 @@ from src._heartbeat_history import _HeartbeatHistory
 from src._state import _State
 
 
-def _phi(time_diff: float, mean: float, std_dev: float) -> float:
-    y = (time_diff - mean) / std_dev
-    e = math.exp(-y * (1.5976 + 0.070566 * y * y))
-    if time_diff > mean:
-        return -math.log10(e / (1.0 + e))
-    else:
-        return -math.log10(1.0 - 1.0 / (1.0 + e))
-
-
 class PhiAccrualFailureDetector:
     def __init__(self, threshold: float,
                  max_sample_size: int,
@@ -79,7 +70,7 @@ class PhiAccrualFailureDetector:
         mean = last_history.mean()
         std_dev = self._ensure_valid_std_deviation(last_history.std_dev())
 
-        return _phi(time_diff, mean + self.acceptable_heartbeat_pause_millis, std_dev)
+        return self._calc_phi(time_diff, mean + self.acceptable_heartbeat_pause_millis, std_dev)
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
         mean = self.first_heartbeat_estimate_millis
@@ -91,3 +82,12 @@ class PhiAccrualFailureDetector:
     @classmethod
     def _get_time(cls) -> float:
         return round(time.time() * 1000)
+
+    @classmethod
+    def _calc_phi(cls, time_diff: float, mean: float, std_dev: float) -> float:
+        y = (time_diff - mean) / std_dev
+        e = math.exp(-y * (1.5976 + 0.070566 * y * y))
+        if time_diff > mean:
+            return -math.log10(e / (1.0 + e))
+        else:
+            return -math.log10(1.0 - 1.0 / (1.0 + e))
