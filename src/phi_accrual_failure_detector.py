@@ -43,9 +43,6 @@ class PhiAccrualFailureDetector:
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
         return max(std_deviation, self.min_std_deviation_millis)
 
-    def _acceptable_heartbeat_pause_millis(self) -> float:
-        return self.acceptable_heartbeat_pause_millis.real
-
     def _is_available(self, timestamp: float) -> bool:
         return self._phi(timestamp) < self.threshold
 
@@ -72,20 +69,22 @@ class PhiAccrualFailureDetector:
             self.heartbeat()
 
     def _phi(self, timestamp: float) -> float:
-        old_state = self.state
-        old_timestamp = old_state.get().timestamp
+        last_state = self.state
+        last_timestamp = last_state.get().timestamp
 
-        if old_timestamp is None:
+        if last_timestamp is None:
             return 0.0
 
-        time_diff = timestamp - old_timestamp
-        history = old_state.get().history
-        mean = history.mean()
-        std_dev = self._ensure_valid_std_deviation(history.std_dev())
+        time_diff = timestamp - last_timestamp
+        last_history = last_state.get().history
+        mean = last_history.mean()
+        std_dev = self._ensure_valid_std_deviation(last_history.std_dev())
 
-        return _phi(time_diff, mean + self._acceptable_heartbeat_pause_millis(), std_dev)
+        return _phi(time_diff, mean + self.acceptable_heartbeat_pause_millis, std_dev)
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
         mean = self.first_heartbeat_estimate_millis
         std_dev = mean / 4
-        return _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev + mean + std_dev))
+        heartbeat = _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev))
+        heartbeat = heartbeat + int(mean + std_dev)
+        return heartbeat
