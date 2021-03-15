@@ -16,12 +16,8 @@ def _phi(time_diff: float, mean: float, std_dev: float) -> float:
         return -math.log10(1.0 - 1.0 / (1.0 + e))
 
 
-def _current_milli_time():
-    return round(time.time() * 1000)
-
-
 class PhiAccrualFailureDetector:
-    def __init__(self, threshold: int,
+    def __init__(self, threshold: float,
                  max_sample_size: int,
                  min_std_deviation_millis: int,
                  acceptable_heartbeat_pause_millis: int,
@@ -46,11 +42,14 @@ class PhiAccrualFailureDetector:
     def _is_available(self, timestamp: float) -> bool:
         return self._phi(timestamp) < self.threshold
 
+    def is_available(self) -> bool:
+        return self._is_available(self._get_time())
+
     def phi(self) -> float:
-        return self._phi(_current_milli_time())
+        return self._phi(self._get_time())
 
     def heartbeat(self) -> None:
-        timestamp = _current_milli_time()
+        timestamp = self._get_time()
         old_state = self.state.get()
         new_history = None
 
@@ -88,3 +87,7 @@ class PhiAccrualFailureDetector:
         heartbeat = _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev))
         heartbeat = heartbeat + int(mean + std_dev)
         return heartbeat
+
+    @classmethod
+    def _get_time(cls) -> float:
+        return round(time.time() * 1000)
