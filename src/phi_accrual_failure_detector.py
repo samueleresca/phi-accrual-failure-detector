@@ -1,6 +1,7 @@
 import math
-from time import clock
-from atomos.atomic import AtomicReference, AtomicLong
+import time
+
+from atomos.atomic import AtomicReference
 
 from src._heartbeat_history import _HeartbeatHistory
 from src._state import _State
@@ -15,10 +16,14 @@ def _phi(time_diff: float, mean: float, std_dev: float) -> float:
         return -math.log10(1.0 - 1.0 / (1.0 + e))
 
 
+def _current_milli_time():
+    return round(time.time() * 1000)
+
+
 class PhiAccrualFailureDetector:
-    def __init__(self, threshold: float,
+    def __init__(self, threshold: int,
                  max_sample_size: int,
-                 min_std_deviation_millis: float,
+                 min_std_deviation_millis: int,
                  acceptable_heartbeat_pause_millis: int,
                  first_heartbeat_estimate_millis: int):
         """
@@ -45,10 +50,10 @@ class PhiAccrualFailureDetector:
         return self._phi(timestamp) < self.threshold
 
     def phi(self) -> float:
-        return self._phi(clock())
+        return self._phi(_current_milli_time())
 
     def heartbeat(self) -> None:
-        timestamp = clock()
+        timestamp = _current_milli_time()
         old_state = self.state.get()
         new_history = None
 
@@ -81,6 +86,6 @@ class PhiAccrualFailureDetector:
         return _phi(time_diff, mean + self._acceptable_heartbeat_pause_millis(), std_dev)
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
-        mean = self.first_heartbeat_estimate_millis.real
+        mean = self.first_heartbeat_estimate_millis
         std_dev = mean / 4
-        return _HeartbeatHistory(self.max_sample_size) + AtomicLong(mean - std_dev) + AtomicLong(mean + std_dev)
+        return _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev + mean + std_dev))
