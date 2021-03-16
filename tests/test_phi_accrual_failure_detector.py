@@ -1,5 +1,6 @@
 import time
 from multiprocessing import Process
+from typing import Iterable
 
 from pytest import mark
 
@@ -7,6 +8,15 @@ from src.phi_accrual_failure_detector import PhiAccrualFailureDetector
 
 
 class TestPhiAccrualFailureDetector:
+
+    @classmethod
+    def get_time_mocked(cls, times: Iterable[float]):
+        def mocked_func():
+            current_time = next(times)
+            print(current_time)
+            return current_time
+
+        return mocked_func
 
     def test_failure_detector_initialization(self):
         failure_detector = PhiAccrualFailureDetector(
@@ -72,8 +82,6 @@ class TestPhiAccrualFailureDetector:
             yield 100
             yield 100
 
-        mock_time_obj = mock_time()
-
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
             max_sample_size=1000,
@@ -82,10 +90,7 @@ class TestPhiAccrualFailureDetector:
             first_heartbeat_estimate_millis=1000
         )
 
-        def get_time_mocked():
-            return next(mock_time_obj)
-
-        failure_detector._get_time = get_time_mocked
+        failure_detector._get_time = self.get_time_mocked(mock_time())
 
         failure_detector.heartbeat()
         failure_detector.heartbeat()
@@ -102,8 +107,6 @@ class TestPhiAccrualFailureDetector:
             yield 3000
             yield 5000
 
-        mock_time_obj = mock_time()
-
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
             max_sample_size=1000,
@@ -112,12 +115,7 @@ class TestPhiAccrualFailureDetector:
             first_heartbeat_estimate_millis=1000
         )
 
-        def get_time_mocked():
-            current_time = next(mock_time_obj)
-            print(current_time)
-            return current_time
-
-        failure_detector._get_time = get_time_mocked
+        failure_detector._get_time = self.get_time_mocked(mock_time())
 
         failure_detector.heartbeat()
         failure_detector.heartbeat()
@@ -139,8 +137,6 @@ class TestPhiAccrualFailureDetector:
             yield 500
             yield 5000
 
-        mock_time_obj = mock_time()
-
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
             max_sample_size=1000,
@@ -149,12 +145,7 @@ class TestPhiAccrualFailureDetector:
             first_heartbeat_estimate_millis=1000
         )
 
-        def get_time_mocked():
-            current_time = next(mock_time_obj)
-            print(current_time)
-            return current_time
-
-        failure_detector._get_time = get_time_mocked
+        failure_detector._get_time = self.get_time_mocked(mock_time())
 
         failure_detector.heartbeat()
         failure_detector.heartbeat()
