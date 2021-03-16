@@ -29,7 +29,7 @@ jobs:
       run: |
         pip install pytest
         pip install coverage
-        coverage run --omit=tests/**/*.py -m pytest tests
+        coverage run -m pytest tests
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
