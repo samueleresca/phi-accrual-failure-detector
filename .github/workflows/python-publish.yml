@@ -28,7 +28,16 @@ jobs:
     - name: Run tests
       run: |
         pip install pytest
-        pytest tests
+        pytest tests --cov-report xml --cov=phi_accrual_failure_detector
+    - name: Generate Report
+      run: |
+        pip install coverage
+        coverage run -m pytest
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
+
 
 
   #  - name: Build and publish
