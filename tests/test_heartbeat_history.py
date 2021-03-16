@@ -1,5 +1,3 @@
-import pytest
-
 from src._heartbeat_history import _HeartbeatHistory
 
 

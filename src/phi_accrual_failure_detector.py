@@ -70,7 +70,7 @@ class PhiAccrualFailureDetector:
         mean = self.first_heartbeat_estimate_millis
         std_dev = mean / 4
         heartbeat = _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev))
-        heartbeat = heartbeat + int(mean + std_dev)
+        heartbeat += int(mean + std_dev)
         return heartbeat
 
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
