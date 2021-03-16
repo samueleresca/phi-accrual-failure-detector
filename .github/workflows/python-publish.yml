@@ -28,22 +28,9 @@ jobs:
     - name: Run tests
       run: |
         pip install pytest
-        pytest tests --cov-report xml --cov=phi_accrual_failure_detector
-    - name: Generate Report
-      run: |
         pip install coverage
-        coverage run -m pytest
+        coverage run -m pytest tests
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         fail_ci_if_error: true
-
-
-
-  #  - name: Build and publish
-  #    env:
-  #      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-  #      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-  #    run: |
-  #      python setup.py sdist bdist_wheel
-  #      twine upload dist/*
