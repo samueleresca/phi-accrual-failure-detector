@@ -13,7 +13,7 @@ class TestPhiAccrualFailureDetector:
     def get_time_mocked(cls, times: Iterable[float]):
         def mocked_func():
             current_time = next(times)
-            print(current_time)
+            print(f"Current time: {current_time}")
             return current_time
 
         return mocked_func
@@ -27,9 +27,9 @@ class TestPhiAccrualFailureDetector:
             first_heartbeat_estimate_millis=500
         )
 
-        assert failure_detector.state is not None
-        assert failure_detector.state.get().history is not None
-        assert failure_detector.state.get().timestamp is None
+        assert failure_detector._state is not None
+        assert failure_detector._state.get().history is not None
+        assert failure_detector._state.get().timestamp is None
 
     def test_failure_detector_phi(self):
         failure_detector = PhiAccrualFailureDetector(
@@ -71,7 +71,7 @@ class TestPhiAccrualFailureDetector:
             current_phi = failure_detector.phi()
 
             assert prev_value > current_phi
-            print(prev_value)
+
             prev_value = current_phi
             time.sleep(1.0)
 
@@ -157,23 +157,3 @@ class TestPhiAccrualFailureDetector:
         assert failure_detector.is_available() is True
         failure_detector._get_time()
         assert failure_detector.is_available() is False
-
-    @mark.skip
-    def test_failure_detector_heartbeat_multi_thread(self):
-        failure_detector = PhiAccrualFailureDetector(
-            threshold=16,
-            max_sample_size=200,
-            min_std_deviation_millis=500,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=500
-        )
-
-        p1 = Process(target=failure_detector.heartbeat)
-        p2 = Process(target=failure_detector.heartbeat)
-
-        p1.start()
-        p2.start()
-        p1.join()
-        p2.join()
-
-        assert failure_detector.phi() is not None
