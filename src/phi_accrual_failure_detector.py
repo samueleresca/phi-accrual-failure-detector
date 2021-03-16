@@ -27,12 +27,6 @@ class PhiAccrualFailureDetector:
         self.first_heartbeat_estimate_millis = first_heartbeat_estimate_millis
         self.state = AtomicReference(_State(history=self._first_heartbeat(), timestamp=None))
 
-    def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
-        return max(std_deviation, self.min_std_deviation_millis)
-
-    def _is_available(self, timestamp: float) -> bool:
-        return self._phi(timestamp) < self.threshold
-
     def is_available(self) -> bool:
         return self._is_available(self._get_time())
 
@@ -79,11 +73,17 @@ class PhiAccrualFailureDetector:
         heartbeat = heartbeat + int(mean + std_dev)
         return heartbeat
 
+    def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
+        return max(std_deviation, self.min_std_deviation_millis)
+
+    def _is_available(self, timestamp: float) -> bool:
+        return self._phi(timestamp) < self.threshold
+
     @classmethod
     def _get_time(cls) -> float:
         return round(time.time() * 1000)
 
-    #https://github.com/akka/akka/issues/1821
+    # https://github.com/akka/akka/issues/1821
     @classmethod
     def _calc_phi(cls, time_diff: float, mean: float, std_dev: float) -> float:
         y = (time_diff - mean) / std_dev
