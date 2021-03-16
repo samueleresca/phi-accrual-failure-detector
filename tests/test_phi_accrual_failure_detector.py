@@ -4,7 +4,7 @@ from typing import Iterable
 
 from pytest import mark
 
-from phi_accrual_failure_detector import PhiAccrualFailureDetector
+from src.phi_accrual_failure_detector import PhiAccrualFailureDetector
 
 
 class TestPhiAccrualFailureDetector:

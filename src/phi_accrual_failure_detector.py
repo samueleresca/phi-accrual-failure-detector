@@ -3,8 +3,8 @@ import time
 
 from atomos.atomic import AtomicReference
 
-from _heartbeat_history import _HeartbeatHistory
-from _state import _State
+from src._heartbeat_history import _HeartbeatHistory
+from src._state import _State
 
 
 class PhiAccrualFailureDetector:
