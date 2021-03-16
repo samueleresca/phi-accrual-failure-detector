@@ -83,6 +83,7 @@ class PhiAccrualFailureDetector:
     def _get_time(cls) -> float:
         return round(time.time() * 1000)
 
+    #https://github.com/akka/akka/issues/1821
     @classmethod
     def _calc_phi(cls, time_diff: float, mean: float, std_dev: float) -> float:
         y = (time_diff - mean) / std_dev

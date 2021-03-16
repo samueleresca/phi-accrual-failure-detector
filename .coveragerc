@@ -1,2 +1,2 @@
 [run]
-omit = test_*
+omit = "test_*"
