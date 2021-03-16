@@ -8,32 +8,56 @@ from src._state import _State
 
 
 class PhiAccrualFailureDetector:
+    """
+     φ Accrual Failure Detector implementation.
+
+    See:
+        https://oneofus.la/have-emacs-will-hack/files/HDY04.pdf
+        https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala
+
+    Attributes:
+        threshold: The threshold used by the instance to trigger the suspicious.
+        max_sample_size: Max number of samples to store.
+        min_std_deviation_millis: Minimum standard deviation used in the calc of the φ
+        acceptable_heartbeat_pause_millis: Number of lost / delayed heartbeat before considering an anomaly.
+        first_heartbeat_estimate_millis: The first heartbeat duration, since the initial collection is empty.
+        state: encapsulates the _State of the current instance of the failure detector.
+    """
     def __init__(self, threshold: float,
                  max_sample_size: int,
                  min_std_deviation_millis: int,
                  acceptable_heartbeat_pause_millis: int,
                  first_heartbeat_estimate_millis: int):
         """
-        :param threshold:
-        :param max_sample_size:
-        :param min_std_deviation_millis:
-        :param acceptable_heartbeat_pause_millis:
-        :param first_heartbeat_estimate_millis:
+        Constructor of the PhiAccrualFailureDetector class.
         """
-        self._threshold = threshold
-        self._max_sample_size = max_sample_size
-        self._min_std_deviation_millis = min_std_deviation_millis
-        self._acceptable_heartbeat_pause_millis = acceptable_heartbeat_pause_millis
-        self._first_heartbeat_estimate_millis = first_heartbeat_estimate_millis
+        self.threshold = threshold
+        self.max_sample_size = max_sample_size
+        self.min_std_deviation_millis = min_std_deviation_millis
+        self.acceptable_heartbeat_pause_millis = acceptable_heartbeat_pause_millis
+        self.first_heartbeat_estimate_millis = first_heartbeat_estimate_millis
         self._state = AtomicReference(_State(history=self._first_heartbeat(), timestamp=None))
 
     def is_available(self) -> bool:
+        """
+        Returns the availability of the current resource computed using the threshold and the φ
+        Returns:
+            True if available otherwise False
+        """
         return self._is_available(self._get_time())
 
     def phi(self) -> float:
+        """
+        Returns the φ calculated using the current state of the detector
+        Returns:
+            The value of the φ
+        """
         return self._phi(self._get_time())
 
     def heartbeat(self) -> None:
+        """
+        Add an heartbeat to the current state of the failure detector
+        """
         timestamp = self._get_time()
         old_state = self._state.get()
         new_history = None
@@ -53,6 +77,13 @@ class PhiAccrualFailureDetector:
             self.heartbeat()
 
     def _phi(self, timestamp: float) -> float:
+        """
+        Calculate the φ based on the current state and the timestamp.
+        Args:
+            timestamp: the timestamp to use to calculate the φ
+        Returns:
+            The value of the φ
+        """
         last_state = self._state
         last_timestamp = last_state.get().timestamp
 
@@ -64,28 +95,60 @@ class PhiAccrualFailureDetector:
         mean = last_history.mean()
         std_dev = self._ensure_valid_std_deviation(last_history.std_dev())
 
-        return self._calc_phi(time_diff, mean + self._acceptable_heartbeat_pause_millis, std_dev)
+        return self._calc_phi(time_diff, mean + self.acceptable_heartbeat_pause_millis, std_dev)
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
-        mean = self._first_heartbeat_estimate_millis
+        """
+        Initialize an _HeartbeatHistory instance using the first_heartbeat_estimate_millis
+        Returns:
+            A new instance of the _HeartbeatHistory
+        """
+        mean = self.first_heartbeat_estimate_millis
         std_dev = mean / 4
-        heartbeat = _HeartbeatHistory(self._max_sample_size) + int((mean - std_dev))
+        heartbeat = _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev))
         heartbeat += int(mean + std_dev)
         return heartbeat
 
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
-        return max(std_deviation, self._min_std_deviation_millis)
+        """
+        Returns the maximum between a std_deviation and the minimum value configured in the constructor.
+        Args:
+            std_deviation: The std_dev to check
+        Returns:
+            the maximum between a std_deviation and the minimum value configured in the constructor.
+        """
+        return max(std_deviation, self.min_std_deviation_millis)
 
     def _is_available(self, timestamp: float) -> bool:
-        return self._phi(timestamp) < self._threshold
+        """
+        Returns the availability of the current resource computed using the threshold and the φ
+        Args:
+            The timestamp of the current time.
+        Returns:
+            True if available otherwise False
+        """
+        return self._phi(timestamp) < self.threshold
 
     @classmethod
     def _get_time(cls) -> float:
+        """
+        Get the time in ms. Useful for mocking in the tests.
+        Returns:
+            The current time in ms.
+        """
         return round(time.time() * 1000)
 
-    # https://github.com/akka/akka/issues/1821
     @classmethod
     def _calc_phi(cls, time_diff: float, mean: float, std_dev: float) -> float:
+        """
+        See: https://github.com/akka/akka/issues/1821
+        Args:
+            time_diff: the difference of time (Tnow- Tlast)
+            mean: the mean of the distribution
+            std_dev: the standard deviation of the distribution
+        Returns:
+             The value of the φ
+        """
         y = (time_diff - mean) / std_dev
         e = math.exp(-y * (1.5976 + 0.070566 * y * y))
         if time_diff > mean:

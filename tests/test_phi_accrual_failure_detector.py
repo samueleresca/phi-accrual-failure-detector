@@ -1,8 +1,5 @@
 import time
-from multiprocessing import Process
 from typing import Iterable
-
-from pytest import mark
 
 from src.phi_accrual_failure_detector import PhiAccrualFailureDetector
 
