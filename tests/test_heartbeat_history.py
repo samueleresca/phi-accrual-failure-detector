@@ -1,7 +1,20 @@
+import pytest
+
 from src._heartbeat_history import _HeartbeatHistory
 
 
 class TestHeartbeatHistory:
+
+    def test_constructor_requirements(self):
+        with pytest.raises(Exception):
+            _HeartbeatHistory(-1)
+
+        with pytest.raises(Exception):
+            _HeartbeatHistory(1, intervals=list(), interval_sum=-1)
+
+        with pytest.raises(Exception):
+            _HeartbeatHistory(1, intervals=list(), interval_sum=1, squared_interval_sum=-1)
+
     def test_mean(self):
         history = _HeartbeatHistory(3)
         history += 1
