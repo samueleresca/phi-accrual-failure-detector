@@ -1,8 +1,7 @@
 import time
 from typing import Iterable
 
-from src.phi_accrual_failure_detector import PhiAccrualFailureDetector
-
+from phi_accrual_failure_detector import PhiAccrualFailureDetector
 
 class TestPhiAccrualFailureDetector:
 

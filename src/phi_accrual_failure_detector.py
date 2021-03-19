@@ -20,7 +20,7 @@ class PhiAccrualFailureDetector:
         min_std_deviation_millis: Minimum standard deviation used in the calc of the φ
         acceptable_heartbeat_pause_millis: Number of lost / delayed heartbeat before considering an anomaly.
         first_heartbeat_estimate_millis: The first heartbeat duration, since the initial collection is empty.
-        state: encapsulates the _State of the current instance of the failure detector.
+        _state: encapsulates the _State of the current instance of the failure detector.
     """
     def __init__(self, threshold: float,
                  max_sample_size: int,

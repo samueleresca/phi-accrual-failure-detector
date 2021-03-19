@@ -8,10 +8,10 @@ class _HeartbeatHistory:
     It stores a limited list of heartbeats in a list of length max_sample_size.
 
     Attributes:
-        max_sample_size: the length of the list of samples to use.
+        _max_sample_size: the length of the list of samples to use.
         intervals: the list of intervals used by the class.
-        interval_sum: represents the total sum of the intervals list.
-        squared_interval_sum:  represent the squared interval total sum of the intervals list.
+        _interval_sum: represents the total sum of the intervals list.
+        _squared_interval_sum:  represent the squared interval total sum of the intervals list.
     """
 
     def __init__(self, max_sample_size: int, intervals=None, interval_sum: float = 0,
