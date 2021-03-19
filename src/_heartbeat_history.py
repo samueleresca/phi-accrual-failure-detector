@@ -5,13 +5,13 @@ import math
 class _HeartbeatHistory:
     """
     Represent the sample window defined in the φ Accrual failure detector paper.
-    It stores a limited list of heartbeats in a list of max_sample_size.
+    It stores a limited list of heartbeats in a list of length max_sample_size.
 
     Attributes:
-        max_sample_size: the size of the samples to use.
-        intervals: the list of intervals stored by the class instance.
-        interval_sum: represents the sum of the intervals.
-        squared_interval_sum:  represent the squared interval sum of the intervals.
+        max_sample_size: the length of the list of samples to use.
+        intervals: the list of intervals used by the class.
+        interval_sum: represents the total sum of the intervals list.
+        squared_interval_sum:  represent the squared interval total sum of the intervals list.
     """
 
     def __init__(self, max_sample_size: int, intervals=None, interval_sum: float = 0,
@@ -37,21 +37,21 @@ class _HeartbeatHistory:
         self._squared_interval_sum = squared_interval_sum
 
     def mean(self) -> float:
-        """ Calculate the mean of the interval distribution.
+        """ Calculate the mean of the intervals distribution.
         Returns:
             the mean of the intervals
         """
         return self._interval_sum / self._max_sample_size
 
     def variance(self) -> float:
-        """ Calculate the variance of the interval distribution.
+        """ Calculate the variance of the intervals distribution.
         Returns:
              the variance of the intervals
         """
         return (self._squared_interval_sum / len(self.intervals)) - (self.mean() * self.mean())
 
     def std_dev(self) -> float:
-        """ Calculate the std_dev of the interval distribution.
+        """ Calculate the standard deviation of the intervals distribution.
         Returns:
              the standard deviation of the collection of intervals
         """

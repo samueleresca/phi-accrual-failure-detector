@@ -12,12 +12,11 @@ class PhiAccrualFailureDetector:
      φ Accrual Failure Detector implementation.
 
     See:
-        https://oneofus.la/have-emacs-will-hack/files/HDY04.pdf
         https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala
 
     Attributes:
-        threshold: The threshold used by the instance to trigger the suspicious.
-        max_sample_size: Max number of samples to store.
+        threshold: The threshold used by the instance to trigger the suspicious level.
+        max_sample_size: Max number of heartbeat samples to store.
         min_std_deviation_millis: Minimum standard deviation used in the calc of the φ
         acceptable_heartbeat_pause_millis: Number of lost / delayed heartbeat before considering an anomaly.
         first_heartbeat_estimate_millis: The first heartbeat duration, since the initial collection is empty.
@@ -40,15 +39,15 @@ class PhiAccrualFailureDetector:
 
     def is_available(self) -> bool:
         """
-        Returns the availability of the current resource computed using the threshold and the φ
+        Returns the availability of the current resource based on the threshold and the calculated φ
         Returns:
-            True if available otherwise False
+            True if the resource is available otherwise False
         """
         return self._is_available(self._get_time())
 
     def phi(self) -> float:
         """
-        Returns the φ calculated using the current state of the detector
+        Returns the φ calculated using the current state of the accrual failure detector.
         Returns:
             The value of the φ
         """
@@ -56,7 +55,7 @@ class PhiAccrualFailureDetector:
 
     def heartbeat(self) -> None:
         """
-        Add an heartbeat to the current state of the failure detector
+        Add an heartbeat to the state of the instance.
         """
         timestamp = self._get_time()
         old_state = self._state.get()
@@ -73,14 +72,15 @@ class PhiAccrualFailureDetector:
 
         new_state = _State(history=new_history, timestamp=timestamp)
 
+        # Look for eventual concurrency issues, eventually it retry the heartbeat operation
         if not self._state.compare_and_set(old_state, new_state):
             self.heartbeat()
 
     def _phi(self, timestamp: float) -> float:
         """
-        Calculate the φ based on the current state and the timestamp.
+        Calculate the φ based on the current state and the Tlast.
         Args:
-            timestamp: the timestamp to use to calculate the φ
+            timestamp: the current timestamp to calculate the φ
         Returns:
             The value of the φ
         """
@@ -99,7 +99,7 @@ class PhiAccrualFailureDetector:
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
         """
-        Initialize an _HeartbeatHistory instance using the first_heartbeat_estimate_millis
+        Initialize a new _HeartbeatHistory instance using the first_heartbeat_estimate_millis
         Returns:
             A new instance of the _HeartbeatHistory
         """
@@ -111,9 +111,9 @@ class PhiAccrualFailureDetector:
 
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
         """
-        Returns the maximum between a std_deviation and the minimum value configured in the constructor.
+        Returns the maximum between a std_deviation and the minimum standard deviation value configured in the constructor.
         Args:
-            std_deviation: The std_dev to check
+            std_deviation: The std_dev value to check
         Returns:
             the maximum between a std_deviation and the minimum value configured in the constructor.
         """
@@ -121,18 +121,18 @@ class PhiAccrualFailureDetector:
 
     def _is_available(self, timestamp: float) -> bool:
         """
-        Returns the availability of the current resource computed using the threshold and the φ
+        Returns the availability of the current resource based on the threshold and the calculated φ
         Args:
             The timestamp of the current time.
         Returns:
-            True if available otherwise False
+            True if the resource is available otherwise False
         """
         return self._phi(timestamp) < self.threshold
 
     @classmethod
     def _get_time(cls) -> float:
         """
-        Get the time in ms. Useful for mocking in the tests.
+        Get the time in ms. Useful for mocking during testing.
         Returns:
             The current time in ms.
         """
@@ -141,11 +141,13 @@ class PhiAccrualFailureDetector:
     @classmethod
     def _calc_phi(cls, time_diff: float, mean: float, std_dev: float) -> float:
         """
+        Core method for calculating the phi φ coefficient. It uses a logistic approximation to the cumulative normal
+        distribution.
         See: https://github.com/akka/akka/issues/1821
         Args:
-            time_diff: the difference of time (Tnow- Tlast)
-            mean: the mean of the distribution
-            std_dev: the standard deviation of the distribution
+            time_diff: the difference of the times (Tnow- Tlast)
+            mean: the mean of the history distribution
+            std_dev: the standard deviation of the history distribution
         Returns:
              The value of the φ
         """
