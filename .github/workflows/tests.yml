@@ -1,4 +1,4 @@
-name: Test pipeline
+name: Pipeline
 on:
   release:
     types: [created]
