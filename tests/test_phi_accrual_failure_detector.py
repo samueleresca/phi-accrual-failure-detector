@@ -3,6 +3,7 @@ from typing import Iterable
 
 from phi_accrual_failure_detector import PhiAccrualFailureDetector
 
+
 class TestPhiAccrualFailureDetector:
 
     @classmethod

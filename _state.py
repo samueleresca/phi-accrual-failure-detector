@@ -1,4 +1,4 @@
-from src._heartbeat_history import _HeartbeatHistory
+from _heartbeat_history import _HeartbeatHistory
 from typing import Optional
 
 
