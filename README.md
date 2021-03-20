@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/samueleresca/phi-accrual-failure-detector/branch/main/graph/badge.svg?token=0PXF0584P3)](https://codecov.io/gh/samueleresca/phi-accrual-failure-detector)
 
 
-A port of the [Akka's (φ) Accrual failure detector implementation](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala).
+A python port of the [Akka's (φ) Accrual failure detector implementation](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala).
 
 
 ## Getting started
