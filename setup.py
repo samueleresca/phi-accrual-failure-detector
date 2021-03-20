@@ -1,11 +1,17 @@
 from distutils.core import setup
+from setuptools import setup
+
+with open('README.md') as f:
+    long_description = f.read()
 
 setup(
     name='phi-accrual-failure-detector',
     packages=['phi-accrual-failure-detector'],
-    version='0.3',
+    version='0.3.1',
     license='MIT',
     description='A port of the Akka\'s (φ) Accrual failure detector implementation',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='samuele.resca',
     author_email='samuele.resca@gmail.com',
     url='https://github.com/samueleresca/phi-accrual-failure-detector',
