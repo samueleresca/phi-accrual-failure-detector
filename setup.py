@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='phi-accrual-failure-detector',
     packages=['phi-accrual-failure-detector'],
-    version='0.1',
+    version='0.3',
     license='MIT',
     description='A port of the Akka\'s (φ) Accrual failure detector implementation',
     author='samuele.resca',
