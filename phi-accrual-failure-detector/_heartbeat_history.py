@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import math
 
 
@@ -8,10 +9,10 @@ class _HeartbeatHistory:
     It stores a limited list of heartbeats in a list of length max_sample_size.
 
     Attributes:
-        _max_sample_size: the length of the list of samples to use.
-        intervals: the list of intervals used by the class.
-        _interval_sum: represents the total sum of the intervals list.
-        _squared_interval_sum:  represent the squared interval total sum of the intervals list.
+        _max_sample_size: the length of the list of samples to use
+        intervals: the list of intervals used by the class
+        _interval_sum: represents the total sum of the intervals list
+        _squared_interval_sum: represents the squared interval total sum of the intervals list
     """
 
     def __init__(self, max_sample_size: int, intervals=None, interval_sum: float = 0,
@@ -72,8 +73,7 @@ class _HeartbeatHistory:
     def __add__(self, interval: int) -> _HeartbeatHistory:
         """ Add a new interval in the list of intervals
         Args:
-            interval:
-             the interval to add
+            interval: the interval to add
         Returns:
              a new instance of the class with the new interval
         """

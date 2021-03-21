@@ -1,5 +1,6 @@
-from _heartbeat_history import _HeartbeatHistory
 from typing import Optional
+
+from _heartbeat_history import _HeartbeatHistory
 
 
 class _State:
@@ -9,6 +10,7 @@ class _State:
         history: The heartbeat history wrapped into the state
         timestamp: Optional; The latest timestamp to wrap in the state.
     """
+
     def __init__(self, history: _HeartbeatHistory, timestamp: Optional[float] = None):
         """
         Constructor of _State class.

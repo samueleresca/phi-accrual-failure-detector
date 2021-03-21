@@ -9,7 +9,7 @@ from _state import _State
 
 class PhiAccrualFailureDetector:
     """
-     φ Accrual Failure Detector implementation.
+    The φ Accrual Failure Detector implementation.
 
     See:
         https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala
@@ -22,6 +22,7 @@ class PhiAccrualFailureDetector:
         first_heartbeat_estimate_millis: The first heartbeat duration, since the initial collection is empty.
         _state: encapsulates the _State of the current instance of the failure detector.
     """
+
     def __init__(self, threshold: float,
                  max_sample_size: int,
                  min_std_deviation_millis: int,
