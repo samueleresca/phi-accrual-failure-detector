@@ -8,6 +8,9 @@ class _HeartbeatHistory:
     Represent the sample window defined in the φ Accrual failure detector paper.
     It stores a limited list of heartbeats in a list of length max_sample_size.
 
+    See:
+       https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala#L237
+
     Attributes:
         _max_sample_size: the length of the list of samples to use
         intervals: the list of intervals used by the class

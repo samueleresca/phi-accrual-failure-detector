@@ -31,6 +31,22 @@ class PhiAccrualFailureDetector:
         """
         Constructor of the PhiAccrualFailureDetector class.
         """
+
+        if threshold <= 0.0:
+            raise Exception("threshold must be > 0")
+
+        if max_sample_size <= 0:
+            raise Exception("max-sample-size must be > 0")
+
+        if min_std_deviation_millis <= 0:
+            raise Exception("min_std_deviation_millis must be > 0")
+
+        if acceptable_heartbeat_pause_millis < 0:
+            raise Exception("acceptable_heartbeat_pause_millis must be >= 0")
+
+        if first_heartbeat_estimate_millis <= 0:
+            raise Exception("first_heartbeat_estimate_millis must be > 0")
+
         self.threshold = threshold
         self.max_sample_size = max_sample_size
         self.min_std_deviation_millis = min_std_deviation_millis

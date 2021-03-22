@@ -15,6 +15,15 @@ class TestHeartbeatHistory:
         with pytest.raises(Exception):
             _HeartbeatHistory(1, intervals=list(), interval_sum=1, squared_interval_sum=-1)
 
+    def test_adding_operation(self):
+        history = _HeartbeatHistory(3)
+
+        history += 1
+        history += 2
+        history += 3
+
+        assert history.intervals == [1, 2, 3]
+
     def test_mean(self):
         history = _HeartbeatHistory(3)
         history += 1
@@ -39,7 +48,7 @@ class TestHeartbeatHistory:
 
         assert history.variance() == 0.666666666666667
 
-    def test_dropping_works(self):
+    def test_drops_values(self):
         history = _HeartbeatHistory(3)
         history += 1
         history += 2

@@ -1,6 +1,8 @@
 import time
 from typing import Iterable
 
+import pytest
+
 from phi_accrual_failure_detector import PhiAccrualFailureDetector
 
 
@@ -14,6 +16,51 @@ class TestPhiAccrualFailureDetector:
             return current_time
 
         return mocked_func
+
+    def test_constructor_requirements(self):
+        with pytest.raises(Exception):
+            PhiAccrualFailureDetector(
+                threshold=-1,
+                max_sample_size=200,
+                min_std_deviation_millis=500,
+                acceptable_heartbeat_pause_millis=0,
+                first_heartbeat_estimate_millis=500
+            )
+
+        with pytest.raises(Exception):
+            PhiAccrualFailureDetector(
+                threshold=16,
+                max_sample_size=0,
+                min_std_deviation_millis=500,
+                acceptable_heartbeat_pause_millis=0,
+                first_heartbeat_estimate_millis=500
+            )
+
+        with pytest.raises(Exception):
+            PhiAccrualFailureDetector(
+                threshold=16,
+                max_sample_size=200,
+                min_std_deviation_millis=-1,
+                acceptable_heartbeat_pause_millis=0,
+                first_heartbeat_estimate_millis=500
+            )
+        with pytest.raises(Exception):
+            PhiAccrualFailureDetector(
+                threshold=16,
+                max_sample_size=200,
+                min_std_deviation_millis=1,
+                acceptable_heartbeat_pause_millis=-1,
+                first_heartbeat_estimate_millis=500
+            )
+
+        with pytest.raises(Exception):
+            PhiAccrualFailureDetector(
+                threshold=16,
+                max_sample_size=200,
+                min_std_deviation_millis=1,
+                acceptable_heartbeat_pause_millis=1,
+                first_heartbeat_estimate_millis=0
+            )
 
     def test_failure_detector_initialization(self):
         failure_detector = PhiAccrualFailureDetector(
