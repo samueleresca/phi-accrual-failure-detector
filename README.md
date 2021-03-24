@@ -5,7 +5,9 @@
 
 A python port of
 the [Akka's (φ) Accrual failure detector implementation](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala)
-.
+. 
+
+A in-depth description is available [here](INSERT_LINK).
 
 ## Getting started
 
@@ -37,12 +39,12 @@ node_is_available = failure_detector.is_available()
 
 ## References
 
-- [The ϕ Accrual Failure Detector - Naohiro Hayashibara, Xavier Défago, Rami Yared1 and Takuya Katayama](https://dspace.jaist.ac.jp/dspace/bitstream/10119/4784/1/IS-RR-2004-010.pdf)
+[The ϕ Accrual Failure Detector - Naohiro Hayashibara, Xavier Défago, Rami Yared and Takuya Katayama](https://ieeexplore.ieee.org/document/1353004)
 
-- [Cassandra - A Decentralized Structured Storage System](https://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
+[Cassandra - A Decentralized Structured Storage System](https://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
 
-- [Phi Accrual Failure Detector - Akka documentation](https://doc.akka.io/docs/akka/current/typed/failure-detector.html)
+[Phi Accrual Failure Detector - Akka documentation](https://doc.akka.io/docs/akka/current/typed/failure-detector.html)
 
-- [akka/akka source code](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala)
+[akka/akka source code](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala)
 
-- [A logistic approximation to the cumulative normal distribution](https://core.ac.uk/download/pdf/41787448.pdf)
+[A logistic approximation to the cumulative normal distribution](https://core.ac.uk/display/41787448)
