@@ -6,7 +6,7 @@ with open('README.md') as f:
 setup(
     name='phi-accrual-failure-detector',
     packages=['phi-accrual-failure-detector'],
-    version='0.3.2',
+    version='0.3.3',
     license='MIT',
     description='A port of the Akka\'s (φ) Accrual failure detector implementation',
     long_description=long_description,
