@@ -172,6 +172,7 @@ class PhiAccrualFailureDetector:
              The value of the φ
         """
         y = (time_diff - mean) / std_dev
+
         try:
             e = math.exp(-y * (1.5976 + 0.070566 * y * y))
         except OverflowError:

@@ -157,11 +157,11 @@ class TestPhiAccrualFailureDetector:
             yield 1000
             yield 1100
             yield 1200
-            yield 4200
-            yield 9200
+            yield 5200
+            yield 8200
 
         failure_detector = PhiAccrualFailureDetector(
-            threshold=164,
+            threshold=3,
             max_sample_size=1000,
             min_std_deviation_ms=10,
             acceptable_heartbeat_pause_ms=0,
