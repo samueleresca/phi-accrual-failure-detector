@@ -149,7 +149,7 @@ class TestPhiAccrualFailureDetector:
         failure_detector._get_time()
         assert failure_detector.is_available() is False
 
-    def test_failure_after_configured_accetable_missing_heartbeat(self):
+    def test_failure_after_configured_acceptable_missing_heartbeat(self):
         def mock_time() -> iter:
             yield 0
             yield 1000
