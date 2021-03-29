@@ -21,53 +21,53 @@ class TestPhiAccrualFailureDetector:
             PhiAccrualFailureDetector(
                 threshold=-1,
                 max_sample_size=200,
-                min_std_deviation_millis=500,
-                acceptable_heartbeat_pause_millis=0,
-                first_heartbeat_estimate_millis=500
+                min_std_deviation_ms=500,
+                acceptable_heartbeat_pause_ms=0,
+                first_heartbeat_estimate_ms=500
             )
 
         with pytest.raises(Exception):
             PhiAccrualFailureDetector(
                 threshold=16,
                 max_sample_size=0,
-                min_std_deviation_millis=500,
-                acceptable_heartbeat_pause_millis=0,
-                first_heartbeat_estimate_millis=500
+                min_std_deviation_ms=500,
+                acceptable_heartbeat_pause_ms=0,
+                first_heartbeat_estimate_ms=500
             )
 
         with pytest.raises(Exception):
             PhiAccrualFailureDetector(
                 threshold=16,
                 max_sample_size=200,
-                min_std_deviation_millis=-1,
-                acceptable_heartbeat_pause_millis=0,
-                first_heartbeat_estimate_millis=500
+                min_std_deviation_ms=-1,
+                acceptable_heartbeat_pause_ms=0,
+                first_heartbeat_estimate_ms=500
             )
         with pytest.raises(Exception):
             PhiAccrualFailureDetector(
                 threshold=16,
                 max_sample_size=200,
-                min_std_deviation_millis=1,
-                acceptable_heartbeat_pause_millis=-1,
-                first_heartbeat_estimate_millis=500
+                min_std_deviation_ms=1,
+                acceptable_heartbeat_pause_ms=-1,
+                first_heartbeat_estimate_ms=500
             )
 
         with pytest.raises(Exception):
             PhiAccrualFailureDetector(
                 threshold=16,
                 max_sample_size=200,
-                min_std_deviation_millis=1,
-                acceptable_heartbeat_pause_millis=1,
-                first_heartbeat_estimate_millis=0
+                min_std_deviation_ms=1,
+                acceptable_heartbeat_pause_ms=1,
+                first_heartbeat_estimate_ms=0
             )
 
     def test_initialization(self):
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
-            min_std_deviation_millis=500,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=500
+            min_std_deviation_ms=500,
+            acceptable_heartbeat_pause_ms=0,
+            first_heartbeat_estimate_ms=500
         )
 
         assert failure_detector._state is not None
@@ -78,9 +78,9 @@ class TestPhiAccrualFailureDetector:
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
-            min_std_deviation_millis=500,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=500
+            min_std_deviation_ms=500,
+            acceptable_heartbeat_pause_ms=0,
+            first_heartbeat_estimate_ms=500
         )
 
         assert failure_detector.phi() is not None
@@ -89,9 +89,9 @@ class TestPhiAccrualFailureDetector:
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
-            min_std_deviation_millis=500,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=500
+            min_std_deviation_ms=500,
+            acceptable_heartbeat_pause_ms=0,
+            first_heartbeat_estimate_ms=500
         )
 
         failure_detector.heartbeat()
@@ -109,9 +109,9 @@ class TestPhiAccrualFailureDetector:
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=1000,
-            min_std_deviation_millis=10,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=1000
+            min_std_deviation_ms=10,
+            acceptable_heartbeat_pause_ms=0,
+            first_heartbeat_estimate_ms=1000
         )
 
         failure_detector._get_time = self.get_time_mocked(mock_time())
@@ -135,9 +135,9 @@ class TestPhiAccrualFailureDetector:
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=1000,
-            min_std_deviation_millis=10,
-            acceptable_heartbeat_pause_millis=3000,
-            first_heartbeat_estimate_millis=1000
+            min_std_deviation_ms=10,
+            acceptable_heartbeat_pause_ms=3000,
+            first_heartbeat_estimate_ms=1000
         )
 
         failure_detector._get_time = self.get_time_mocked(mock_time())
@@ -161,11 +161,11 @@ class TestPhiAccrualFailureDetector:
             yield 9200
 
         failure_detector = PhiAccrualFailureDetector(
-            threshold=3,
+            threshold=164,
             max_sample_size=1000,
-            min_std_deviation_millis=10,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=1000
+            min_std_deviation_ms=10,
+            acceptable_heartbeat_pause_ms=0,
+            first_heartbeat_estimate_ms=1000
         )
 
         failure_detector._get_time = self.get_time_mocked(mock_time())
@@ -193,9 +193,9 @@ class TestPhiAccrualFailureDetector:
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
             max_sample_size=1000,
-            min_std_deviation_millis=10,
-            acceptable_heartbeat_pause_millis=3000,
-            first_heartbeat_estimate_millis=1000
+            min_std_deviation_ms=10,
+            acceptable_heartbeat_pause_ms=3000,
+            first_heartbeat_estimate_ms=1000
         )
 
         failure_detector._get_time = self.get_time_mocked(mock_time())

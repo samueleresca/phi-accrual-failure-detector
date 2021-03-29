@@ -18,17 +18,17 @@ class PhiAccrualFailureDetector:
     Attributes:
         threshold: The threshold used by the instance to trigger the suspicious level.
         max_sample_size: Max number of heartbeat samples to store.
-        min_std_deviation_millis: Minimum standard deviation used in the calc of the φ
-        acceptable_heartbeat_pause_millis: Number of lost / delayed heartbeat before considering an anomaly.
-        first_heartbeat_estimate_millis: The first heartbeat duration, since the initial collection is empty.
+        min_std_deviation_ms: Minimum standard deviation used in the calc of the φ
+        acceptable_heartbeat_pause_ms: Number of lost / delayed heartbeat before considering an anomaly.
+        first_heartbeat_estimate_ms: The first heartbeat duration, since the initial collection is empty.
         _state: encapsulates the _State of the current instance of the failure detector.
     """
 
     def __init__(self, threshold: float,
                  max_sample_size: int,
-                 min_std_deviation_millis: int,
-                 acceptable_heartbeat_pause_millis: int,
-                 first_heartbeat_estimate_millis: int):
+                 min_std_deviation_ms: int,
+                 acceptable_heartbeat_pause_ms: int,
+                 first_heartbeat_estimate_ms: int):
         """
         Constructor of the PhiAccrualFailureDetector class.
         """
@@ -39,20 +39,20 @@ class PhiAccrualFailureDetector:
         if max_sample_size <= 0:
             raise Exception("max-sample-size must be > 0")
 
-        if min_std_deviation_millis <= 0:
-            raise Exception("min_std_deviation_millis must be > 0")
+        if min_std_deviation_ms <= 0:
+            raise Exception("min_std_deviation_ms must be > 0")
 
-        if acceptable_heartbeat_pause_millis < 0:
-            raise Exception("acceptable_heartbeat_pause_millis must be >= 0")
+        if acceptable_heartbeat_pause_ms < 0:
+            raise Exception("acceptable_heartbeat_pause_ms must be >= 0")
 
-        if first_heartbeat_estimate_millis <= 0:
-            raise Exception("first_heartbeat_estimate_millis must be > 0")
+        if first_heartbeat_estimate_ms <= 0:
+            raise Exception("first_heartbeat_estimate_ms must be > 0")
 
         self.threshold = threshold
         self.max_sample_size = max_sample_size
-        self.min_std_deviation_millis = min_std_deviation_millis
-        self.acceptable_heartbeat_pause_millis = acceptable_heartbeat_pause_millis
-        self.first_heartbeat_estimate_millis = first_heartbeat_estimate_millis
+        self.min_std_deviation_ms = min_std_deviation_ms
+        self.acceptable_heartbeat_pause_ms = acceptable_heartbeat_pause_ms
+        self.first_heartbeat_estimate_ms = first_heartbeat_estimate_ms
         self._state = AtomicReference(_State(history=self._first_heartbeat(), timestamp=None))
 
     def is_available(self) -> bool:
@@ -113,15 +113,15 @@ class PhiAccrualFailureDetector:
         mean = last_history.mean()
         std_dev = self._ensure_valid_std_deviation(last_history.std_dev())
 
-        return self._calc_phi(time_diff, mean + self.acceptable_heartbeat_pause_millis, std_dev)
+        return self._calc_phi(time_diff, mean + self.acceptable_heartbeat_pause_ms, std_dev)
 
     def _first_heartbeat(self) -> _HeartbeatHistory:
         """
-        Initialize a new _HeartbeatHistory instance using the first_heartbeat_estimate_millis
+        Initialize a new _HeartbeatHistory instance using the first_heartbeat_estimate_ms
         Returns:
             A new instance of the _HeartbeatHistory
         """
-        mean = self.first_heartbeat_estimate_millis
+        mean = self.first_heartbeat_estimate_ms
         std_dev = mean / 4
         heartbeat = _HeartbeatHistory(self.max_sample_size) + int(mean - std_dev)
         heartbeat = heartbeat + int(mean + std_dev)
@@ -135,7 +135,7 @@ class PhiAccrualFailureDetector:
         Returns:
             the maximum between a std_deviation and the minimum value configured in the constructor.
         """
-        return max(std_deviation, self.min_std_deviation_millis)
+        return max(std_deviation, self.min_std_deviation_ms)
 
     def _is_available(self, timestamp: float) -> bool:
         """
@@ -146,6 +146,7 @@ class PhiAccrualFailureDetector:
             True if the resource is available otherwise False
         """
         phi_value = self._phi(timestamp)
+        print(f"φ: {phi_value}")
         return phi_value < self.threshold
 
     @classmethod

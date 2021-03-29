@@ -25,9 +25,9 @@ from phi_accrual_failure_detector import PhiAccrualFailureDetector
 failure_detector = PhiAccrualFailureDetector(
     threshold=3,
     max_sample_size=1000,
-    min_std_deviation_millis=10,
-    acceptable_heartbeat_pause_millis=0,
-    first_heartbeat_estimate_millis=1000
+    min_std_deviation_ms=10,
+    acceptable_heartbeat_pause_ms=0,
+    first_heartbeat_estimate_ms=1000
 )
 
 failure_detector.heartbeat()  # sends an heartbeat
