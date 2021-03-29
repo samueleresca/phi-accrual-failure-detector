@@ -146,7 +146,6 @@ class PhiAccrualFailureDetector:
             True if the resource is available otherwise False
         """
         phi_value = self._phi(timestamp)
-        print(f"φ: {phi_value}")
         return phi_value < self.threshold
 
     @classmethod
