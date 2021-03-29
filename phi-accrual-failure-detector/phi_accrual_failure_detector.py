@@ -1,3 +1,4 @@
+import copy
 import math
 import time
 
@@ -76,16 +77,16 @@ class PhiAccrualFailureDetector:
         """
         timestamp = self._get_time()
         old_state = self._state.get()
-        new_history = None
 
         if old_state.timestamp is None:
             new_history = self._first_heartbeat()
         else:
             latest_timestamp = old_state.timestamp
             interval = timestamp - latest_timestamp
+            new_history = old_state.history
 
             if self._is_available(timestamp):
-                new_history = old_state.history + interval
+                new_history += interval
 
         new_state = _State(history=new_history, timestamp=timestamp)
 
@@ -122,8 +123,8 @@ class PhiAccrualFailureDetector:
         """
         mean = self.first_heartbeat_estimate_millis
         std_dev = mean / 4
-        heartbeat = _HeartbeatHistory(self.max_sample_size) + int((mean - std_dev))
-        heartbeat += int(mean + std_dev)
+        heartbeat = _HeartbeatHistory(self.max_sample_size) + int(mean - std_dev)
+        heartbeat = heartbeat + int(mean + std_dev)
         return heartbeat
 
     def _ensure_valid_std_deviation(self, std_deviation: float) -> float:
@@ -144,7 +145,8 @@ class PhiAccrualFailureDetector:
         Returns:
             True if the resource is available otherwise False
         """
-        return self._phi(timestamp) < self.threshold
+        phi_value = self._phi(timestamp)
+        return phi_value < self.threshold
 
     @classmethod
     def _get_time(cls) -> float:
@@ -169,7 +171,11 @@ class PhiAccrualFailureDetector:
              The value of the φ
         """
         y = (time_diff - mean) / std_dev
-        e = math.exp(-y * (1.5976 + 0.070566 * y * y))
+        try:
+            e = math.exp(-y * (1.5976 + 0.070566 * y * y))
+        except OverflowError:
+            e = float('inf')
+
         if time_diff > mean:
             return -math.log10(e / (1.0 + e))
         else:

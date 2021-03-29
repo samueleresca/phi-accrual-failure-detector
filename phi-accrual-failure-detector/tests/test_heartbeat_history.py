@@ -32,6 +32,13 @@ class TestHeartbeatHistory:
 
         assert history.mean() == 2.0
 
+    def test_mean_using_right_size(self):
+        history = _HeartbeatHistory(3)
+        history += 1
+        history += 2
+
+        assert history.mean() == 1.5
+
     def test_std_dev(self):
         history = _HeartbeatHistory(3)
         history += 1

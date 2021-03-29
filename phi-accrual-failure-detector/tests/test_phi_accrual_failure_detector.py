@@ -14,7 +14,6 @@ class TestPhiAccrualFailureDetector:
             current_time = next(times)
             print(f"Current time: {current_time}")
             return current_time
-
         return mocked_func
 
     def test_constructor_requirements(self):
@@ -64,7 +63,7 @@ class TestPhiAccrualFailureDetector:
 
     def test_failure_detector_initialization(self):
         failure_detector = PhiAccrualFailureDetector(
-            threshold=16,
+            threshold=8,
             max_sample_size=200,
             min_std_deviation_millis=500,
             acceptable_heartbeat_pause_millis=0,
@@ -77,7 +76,7 @@ class TestPhiAccrualFailureDetector:
 
     def test_failure_detector_phi(self):
         failure_detector = PhiAccrualFailureDetector(
-            threshold=16,
+            threshold=8,
             max_sample_size=200,
             min_std_deviation_millis=500,
             acceptable_heartbeat_pause_millis=0,
@@ -88,7 +87,7 @@ class TestPhiAccrualFailureDetector:
 
     def test_failure_detector_heartbeat(self):
         failure_detector = PhiAccrualFailureDetector(
-            threshold=16,
+            threshold=8,
             max_sample_size=200,
             min_std_deviation_millis=500,
             acceptable_heartbeat_pause_millis=0,
@@ -100,36 +99,17 @@ class TestPhiAccrualFailureDetector:
 
         assert failure_detector.phi() is not None
 
-    def test_failure_detector_heartbeats(self):
-        failure_detector = PhiAccrualFailureDetector(
-            threshold=16,
-            max_sample_size=10,
-            min_std_deviation_millis=500,
-            acceptable_heartbeat_pause_millis=0,
-            first_heartbeat_estimate_millis=500
-        )
-
-        prev_value = 1
-        for counter in range(0, 5):
-            failure_detector.heartbeat()
-            current_phi = failure_detector.phi()
-
-            assert prev_value > current_phi
-
-            prev_value = current_phi
-            time.sleep(1.0)
-
     def test_failure_detector_with_series_of_successful_heartbeats(self):
         def mock_time():
             yield 0
             yield 1000
-            yield 100
-            yield 100
+            yield 1100
+            yield 1200
 
         failure_detector = PhiAccrualFailureDetector(
-            threshold=3,
+            threshold=8,
             max_sample_size=1000,
-            min_std_deviation_millis=10000,
+            min_std_deviation_millis=10,
             acceptable_heartbeat_pause_millis=0,
             first_heartbeat_estimate_millis=1000
         )
@@ -146,10 +126,10 @@ class TestPhiAccrualFailureDetector:
         def mock_time() -> iter:
             yield 0
             yield 1000
-            yield 100
-            yield 100
-            yield 3000
-            yield 5000
+            yield 1100
+            yield 1200
+            yield 4200
+            yield 9200
 
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
@@ -169,23 +149,23 @@ class TestPhiAccrualFailureDetector:
         failure_detector._get_time()
         assert failure_detector.is_available() is False
 
-    def test_failure_after_configured_missing_accetable_heartbeat(self):
-        def mock_time():
+    def test_failure_after_configured_accetable_missing_heartbeat(self):
+        def mock_time() -> iter:
             yield 0
             yield 1000
-            yield 1000
-            yield 1000
-            yield 1000
-            yield 1000
-            yield 500
-            yield 500
+            yield 2000
+            yield 3000
+            yield 4000
             yield 5000
+            yield 5500
+            yield 6000
+            yield 11000
 
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
             max_sample_size=1000,
             min_std_deviation_millis=10,
-            acceptable_heartbeat_pause_millis=0,
+            acceptable_heartbeat_pause_millis=3000,
             first_heartbeat_estimate_millis=1000
         )
 
@@ -199,5 +179,5 @@ class TestPhiAccrualFailureDetector:
         failure_detector.heartbeat()
 
         assert failure_detector.is_available() is True
-        failure_detector._get_time()
+        failure_detector.heartbeat()
         assert failure_detector.is_available() is False

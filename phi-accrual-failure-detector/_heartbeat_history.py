@@ -45,7 +45,7 @@ class _HeartbeatHistory:
         Returns:
             the mean of the intervals
         """
-        return self._interval_sum / self._max_sample_size
+        return self._interval_sum / len(self.intervals)
 
     def variance(self) -> float:
         """ Calculate the variance of the intervals distribution.
