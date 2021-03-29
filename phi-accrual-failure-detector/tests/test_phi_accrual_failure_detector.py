@@ -1,4 +1,3 @@
-import time
 from typing import Iterable
 
 import pytest
@@ -14,6 +13,7 @@ class TestPhiAccrualFailureDetector:
             current_time = next(times)
             print(f"Current time: {current_time}")
             return current_time
+
         return mocked_func
 
     def test_constructor_requirements(self):
@@ -61,7 +61,7 @@ class TestPhiAccrualFailureDetector:
                 first_heartbeat_estimate_millis=0
             )
 
-    def test_failure_detector_initialization(self):
+    def test_initialization(self):
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
@@ -74,7 +74,7 @@ class TestPhiAccrualFailureDetector:
         assert failure_detector._state.get().history is not None
         assert failure_detector._state.get().timestamp is None
 
-    def test_failure_detector_phi(self):
+    def test_phi(self):
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
@@ -85,7 +85,7 @@ class TestPhiAccrualFailureDetector:
 
         assert failure_detector.phi() is not None
 
-    def test_failure_detector_heartbeat(self):
+    def test_heartbeat(self):
         failure_detector = PhiAccrualFailureDetector(
             threshold=8,
             max_sample_size=200,
@@ -99,7 +99,7 @@ class TestPhiAccrualFailureDetector:
 
         assert failure_detector.phi() is not None
 
-    def test_failure_detector_with_series_of_successful_heartbeats(self):
+    def test_with_series_of_successful_heartbeats(self):
         def mock_time():
             yield 0
             yield 1000
@@ -122,7 +122,36 @@ class TestPhiAccrualFailureDetector:
 
         assert failure_detector.is_available() is True
 
-    def test_failure_detector_with_death_node_if_heartbeat_missed(self):
+    def test_with_a_missing_heartbeat_with_right_acceptable_timeout(self):
+        def mock_time():
+            yield 0
+            yield 1000
+            yield 2000
+            yield 3000
+            yield 7000
+            yield 8000
+            yield 9000
+
+        failure_detector = PhiAccrualFailureDetector(
+            threshold=8,
+            max_sample_size=1000,
+            min_std_deviation_millis=10,
+            acceptable_heartbeat_pause_millis=3000,
+            first_heartbeat_estimate_millis=1000
+        )
+
+        failure_detector._get_time = self.get_time_mocked(mock_time())
+
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+        failure_detector.heartbeat()
+
+        assert failure_detector.is_available() is True
+        failure_detector.heartbeat()
+        assert failure_detector.is_available() is True
+
+    def test_with_death_node_if_heartbeat_missed(self):
         def mock_time() -> iter:
             yield 0
             yield 1000
@@ -149,7 +178,7 @@ class TestPhiAccrualFailureDetector:
         failure_detector._get_time()
         assert failure_detector.is_available() is False
 
-    def test_failure_after_configured_acceptable_missing_heartbeat(self):
+    def test_after_configured_acceptable_missing_heartbeat(self):
         def mock_time() -> iter:
             yield 0
             yield 1000
