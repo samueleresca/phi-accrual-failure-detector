@@ -153,11 +153,11 @@ class TestPhiAccrualFailureDetector:
     def test_failure_if_heartbeat_missed(self):
         def mock_time() -> iter:
             yield 0
-            yield 10000
-            yield 11000
-            yield 12000
-            yield 15200
-            yield 18200
+            yield 1000
+            yield 1100
+            yield 1200
+            yield 5200
+            yield 8200
 
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
