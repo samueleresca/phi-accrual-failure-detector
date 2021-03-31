@@ -6,7 +6,6 @@ from phi_accrual_failure_detector import PhiAccrualFailureDetector
 
 
 class TestPhiAccrualFailureDetector:
-
     @classmethod
     def get_time_mocked(cls, times: Iterable[float]):
         def mocked_func():
@@ -122,7 +121,7 @@ class TestPhiAccrualFailureDetector:
 
         assert failure_detector.is_available() is True
 
-    def test_with_a_missing_heartbeat_with_right_acceptable_timeout(self):
+    def test_success_with_a_missing_heartbeat_and_right_acceptable_timeout(self):
         def mock_time():
             yield 0
             yield 1000
@@ -151,14 +150,14 @@ class TestPhiAccrualFailureDetector:
         failure_detector.heartbeat()
         assert failure_detector.is_available() is True
 
-    def test_with_death_node_if_heartbeat_missed(self):
+    def test_failure_if_heartbeat_missed(self):
         def mock_time() -> iter:
             yield 0
-            yield 1000
-            yield 1100
-            yield 1200
-            yield 5200
-            yield 8200
+            yield 10000
+            yield 11000
+            yield 12000
+            yield 15200
+            yield 18200
 
         failure_detector = PhiAccrualFailureDetector(
             threshold=3,
@@ -178,7 +177,7 @@ class TestPhiAccrualFailureDetector:
         failure_detector._get_time()
         assert failure_detector.is_available() is False
 
-    def test_after_configured_acceptable_missing_heartbeat(self):
+    def test_failure_after_configured_acceptable_missing_heartbeat(self):
         def mock_time() -> iter:
             yield 0
             yield 1000

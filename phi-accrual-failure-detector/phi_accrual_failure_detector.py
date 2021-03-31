@@ -145,6 +145,7 @@ class PhiAccrualFailureDetector:
             True if the resource is available otherwise False
         """
         phi_value = self._phi(timestamp)
+        print(f"phi: {phi_value}")
         return phi_value < self.threshold
 
     @classmethod
@@ -168,6 +169,7 @@ class PhiAccrualFailureDetector:
             std_dev: the standard deviation of the history distribution
         Returns:
              The value of the φ
+
         """
         y = (time_diff - mean) / std_dev
 
