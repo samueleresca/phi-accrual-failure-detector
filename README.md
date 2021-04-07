@@ -7,7 +7,7 @@ A python port of
 the [Akka's (φ) Accrual failure detector implementation](https://github.com/akka/akka/blob/master/akka-remote/src/main/scala/akka/remote/PhiAccrualFailureDetector.scala)
 . 
 
-A in-depth description is available [here](INSERT_LINK).
+A in-depth description is available [here](https://samueleresca.net/detecting-node-failures-and-the-phi-accrual-failure-detector/).
 
 ## Getting started
 
